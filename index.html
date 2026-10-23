@@ -3,9 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://*.supabase.co; connect-src 'self' https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'none'">
 <title>Prime Soldagem</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="Prime Soldagem em Ribeirão Preto/SP: soldagem em inox, alumínio, aço e soldas especiais. Caldeiraria, estruturas metálicas, serralheria e fabricação sob medida.">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -40,7 +39,10 @@
         <li><a href="#contato">Contato</a></li>
       </ul>
     </nav>
-    <a class="btn btn-line js-wa" href="https://wa.me/5516994275750" target="_blank" rel="noopener"><svg><use href="#i-wa"/></svg><span>Falar no WhatsApp</span></a>
+    <div class="bar-actions">
+      <a class="acct" id="acct" href="conta.html">Entrar</a>
+      <a class="btn btn-line js-wa" href="https://wa.me/5516994275750" target="_blank" rel="noopener"><svg><use href="#i-wa"/></svg><span>Falar no WhatsApp</span></a>
+    </div>
   </div>
 </header>
 
@@ -49,8 +51,8 @@
     <div class="wrap hero-grid">
       <div class="hero-text">
         <p class="eyebrow">Soluções em soldagem</p>
-        <h1>Soldagem com <span class="blue">precisão, qualidade e confiança.</span></h1>
-        <p class="lead">Serviços especializados em inox, alumínio, aço e soldas especiais, com acabamento de alto padrão e atendimento personalizado para cada projeto.</p>
+        <h1 id="hero-title">Soldagem com <span class="blue">precisão, qualidade e confiança.</span></h1>
+        <p class="lead" id="hero-sub">Serviços especializados em inox, alumínio, aço e soldas especiais, com acabamento de alto padrão e atendimento personalizado para cada projeto.</p>
         <div class="ctas">
           <a class="btn btn-solid" href="#contato">Solicitar orçamento<svg><use href="#i-arrow"/></svg></a>
           <a class="btn btn-line js-wa" href="https://wa.me/5516994275750" target="_blank" rel="noopener"><svg><use href="#i-wa"/></svg>Falar no WhatsApp</a>
@@ -102,7 +104,7 @@
       <div class="about-text">
         <p class="eyebrow">Sobre a Prime Soldagem</p>
         <h2>Tradição em soldagem, foco em resultados.</h2>
-        <p>A Prime Soldagem é especializada na fabricação e montagem de estruturas metálicas, caldeiraria e serralheria. Atuamos com qualidade, segurança e compromisso, entregando soluções sob medida para obras, indústrias, comércios e residências.</p>
+        <p id="sobre-txt">A Prime Soldagem é especializada na fabricação e montagem de estruturas metálicas, caldeiraria e serralheria. Atuamos com qualidade, segurança e compromisso, entregando soluções sob medida para obras, indústrias, comércios e residências.</p>
         <p>Trabalhamos com equipamentos modernos e profissionais qualificados para garantir resistência, precisão e durabilidade em cada projeto.</p>
       </div>
       <ul class="about-list">
@@ -123,7 +125,7 @@
         </div>
         <a class="btn btn-line" href="https://www.instagram.com/primesoldagem/" target="_blank" rel="noopener">Ver mais projetos<svg><use href="#i-arrow"/></svg></a>
       </div>
-      <div class="gallery">
+      <div class="gallery" id="gallery">
         <figure><img src="img/suportes.jpg" alt="Lote de 250 suportes de aço dobrados e soldados"><figcaption>Suportes · 250 peças</figcaption></figure>
         <figure><img src="img/bancada.jpg" alt="Bancada industrial com grelha"><figcaption>Bancada industrial</figcaption></figure>
         <figure><img src="img/w_cacamba.jpg" alt="Caçamba de aço"><figcaption>Caçamba</figcaption></figure>
@@ -158,6 +160,8 @@
           <label for="f-nome"><span class="sr">Nome completo</span><input id="f-nome" name="nome" autocomplete="name" placeholder="Nome completo*" maxlength="80"></label>
           <label for="f-cidade"><span class="sr">Cidade</span><input id="f-cidade" name="cidade" autocomplete="address-level2" placeholder="Cidade*" maxlength="60"></label>
         </div>
+        <label for="f-tel"><span class="sr">WhatsApp</span><input id="f-tel" name="telefone" type="tel" autocomplete="tel" inputmode="tel" placeholder="Seu WhatsApp*" maxlength="20"></label>
+        <label class="hp" for="f-site" aria-hidden="true">Site<input id="f-site" name="site" tabindex="-1" autocomplete="off"></label>
         <label for="f-servico"><span class="sr">Serviço</span>
           <select id="f-servico" name="servico">
             <option value="">Tipo de serviço*</option>
@@ -179,7 +183,7 @@
         <svg class="wa-big"><use href="#i-wa"/></svg>
         <p class="eyebrow">Atendimento via WhatsApp</p>
         <h3>Fale agora com nossa equipe</h3>
-        <p class="wa-num">(16) 99427-5750</p>
+        <p class="wa-num" id="wa-num">(16) 99427-5750</p>
         <a class="btn btn-wa js-wa" href="https://wa.me/5516994275750" target="_blank" rel="noopener"><svg><use href="#i-wa"/></svg>Conversar no WhatsApp</a>
         <ul class="mini">
           <li><svg><use href="#i-bolt"/></svg>Atendimento rápido</li>
@@ -203,7 +207,7 @@
       <a href="https://www.instagram.com/primesoldagem/" target="_blank" rel="noopener" aria-label="Instagram da Prime Soldagem"><svg><use href="#i-ig"/></svg></a>
       <a class="js-wa" href="https://wa.me/5516994275750" target="_blank" rel="noopener" aria-label="WhatsApp da Prime Soldagem"><svg><use href="#i-wa"/></svg></a>
     </div>
-    <p class="loc"><svg><use href="#i-pin"/></svg><span>Ribeirão Preto · SP<small>Atendemos toda a região</small></span></p>
+    <p class="loc"><svg><use href="#i-pin"/></svg><span><b id="cidade-txt">Ribeirão Preto · SP</b><small>Atendemos toda a região</small></span></p>
   </div>
   <div class="wrap legal-line">
     <p>© 2026 Prime Soldagem · <a href="privacidade.html">Política de Privacidade</a></p>
@@ -212,6 +216,9 @@
 
 <a class="wa-float js-wa" href="https://wa.me/5516994275750" target="_blank" rel="noopener" aria-label="Falar no WhatsApp"><svg><use href="#i-wa"/></svg></a>
 <canvas id="weld" aria-hidden="true"></canvas>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" defer></script>
+<script src="js/config.js" defer></script>
+<script src="js/supa.js" defer></script>
 <script src="js/site.js" defer></script>
 </body>
 </html>

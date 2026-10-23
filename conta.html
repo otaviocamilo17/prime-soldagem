@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://*.supabase.co; connect-src 'self' https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="robots" content="noindex">
+<title>Minha conta · Prime Soldagem</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira:wdth,wght@100..125,400..800&display=swap">
+<link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap bar">
+    <a class="brand" href="index.html" aria-label="Prime Soldagem, voltar ao site"><img src="img/logo-mark.jpg" alt="Prime Soldagem" width="440" height="330"></a>
+    <a class="acct" href="index.html">← Voltar ao site</a>
+  </div>
+</header>
+
+<main class="wrap account">
+  <p class="note-box" id="off" hidden>A área do cliente ainda está sendo configurada. Enquanto isso, peça seu orçamento pelo WhatsApp (16) 99427-5750.</p>
+
+  <!-- entrar / criar conta -->
+  <section id="auth" class="acc-card" hidden>
+    <div class="acc-tabs" role="tablist">
+      <button role="tab" id="t-login" aria-selected="true">Entrar</button>
+      <button role="tab" id="t-signup" aria-selected="false">Criar conta</button>
+    </div>
+
+    <form id="f-login" class="acc-form" novalidate>
+      <h1>Entrar</h1>
+      <p class="acc-sub">Acompanhe seus orçamentos e pedidos.</p>
+      <label for="l-email">E-mail<input id="l-email" type="email" autocomplete="email" required maxlength="120"></label>
+      <label for="l-pass">Senha<input id="l-pass" type="password" autocomplete="current-password" required maxlength="72"></label>
+      <button class="btn btn-solid full" type="submit">Entrar</button>
+      <button class="linkish" type="button" id="forgot">Esqueci minha senha</button>
+    </form>
+
+    <form id="f-signup" class="acc-form" novalidate hidden>
+      <h1>Criar conta</h1>
+      <p class="acc-sub">Com a conta você pede orçamentos mais rápido e acompanha cada etapa do serviço.</p>
+      <label for="s-nome">Nome completo<input id="s-nome" autocomplete="name" required maxlength="80"></label>
+      <div class="row">
+        <label for="s-tel">WhatsApp<input id="s-tel" type="tel" inputmode="tel" autocomplete="tel" required maxlength="20"></label>
+        <label for="s-cidade">Cidade<input id="s-cidade" autocomplete="address-level2" maxlength="60"></label>
+      </div>
+      <label for="s-email">E-mail<input id="s-email" type="email" autocomplete="email" required maxlength="120"></label>
+      <label for="s-pass">Senha (mínimo 8 caracteres)<input id="s-pass" type="password" autocomplete="new-password" required minlength="8" maxlength="72"></label>
+      <label class="consent" for="s-lgpd"><input type="checkbox" id="s-lgpd"><span>Concordo com a <a href="privacidade.html" target="_blank" rel="noopener">Política de Privacidade</a>.</span></label>
+      <button class="btn btn-solid full" type="submit">Criar conta</button>
+    </form>
+
+    <form id="f-reset" class="acc-form" novalidate hidden>
+      <h1>Nova senha</h1>
+      <label for="r-pass">Nova senha (mínimo 8 caracteres)<input id="r-pass" type="password" autocomplete="new-password" minlength="8" maxlength="72"></label>
+      <button class="btn btn-solid full" type="submit">Salvar nova senha</button>
+    </form>
+
+    <p class="acc-msg" id="msg" role="status"></p>
+  </section>
+
+  <!-- área do cliente -->
+  <section id="area" hidden>
+    <div class="acc-head">
+      <div><p class="eyebrow">Minha conta</p><h1 id="hello">Olá</h1></div>
+      <div class="acc-actions"><a class="btn btn-solid" href="index.html#contato">Pedir orçamento</a><button class="btn btn-line" id="logout">Sair</button></div>
+    </div>
+
+    <div class="acc-grid">
+      <div class="acc-card">
+        <h2>Meus orçamentos</h2>
+        <ul class="acc-list" id="my-orc"></ul>
+      </div>
+      <div class="acc-card">
+        <h2>Meus pedidos</h2>
+        <ul class="acc-list" id="my-ped"></ul>
+      </div>
+      <form class="acc-card acc-form" id="f-perfil" novalidate>
+        <h2>Meus dados</h2>
+        <label for="p-nome">Nome<input id="p-nome" autocomplete="name" maxlength="80"></label>
+        <div class="row">
+          <label for="p-tel">WhatsApp<input id="p-tel" type="tel" inputmode="tel" maxlength="20"></label>
+          <label for="p-cidade">Cidade<input id="p-cidade" maxlength="60"></label>
+        </div>
+        <button class="btn btn-line" type="submit">Salvar dados</button>
+        <p class="acc-msg" id="p-msg" role="status"></p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" defer></script>
+<script src="js/config.js" defer></script>
+<script src="js/supa.js" defer></script>
+<script src="js/conta.js" defer></script>
+</body>
+</html>
