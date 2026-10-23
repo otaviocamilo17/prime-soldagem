@@ -72,6 +72,8 @@ drop trigger if exists ao_criar_usuario on auth.users;
 create trigger ao_criar_usuario
   after insert on auth.users
   for each row execute function public.novo_cliente();
+-- só o próprio banco dispara esta função; ninguém chama pela API
+revoke execute on function public.novo_cliente() from public, anon, authenticated;
 
 -- ============================================================
 -- 3. Orçamentos
