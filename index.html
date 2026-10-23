@@ -177,7 +177,11 @@
         <label for="f-desc"><span class="sr">Descrição</span><textarea id="f-desc" name="descricao" placeholder="Descreva seu projeto ou serviço desejado*" maxlength="600"></textarea></label>
         <label class="consent" for="f-lgpd"><input type="checkbox" id="f-lgpd" name="lgpd"><span>Concordo com a <a href="privacidade.html" target="_blank" rel="noopener">Política de Privacidade</a>. Meus dados serão usados só para responder este orçamento.</span></label>
         <p class="err" id="f-err" role="alert" hidden></p>
-        <a id="f-send" class="btn btn-solid full" href="https://wa.me/5516994275750" target="_blank" rel="noopener">Enviar solicitação<svg><use href="#i-arrow"/></svg></a>
+        <p class="ok" id="f-ok" role="status" hidden></p>
+        <div class="form-actions">
+          <button id="f-send" class="btn btn-solid" type="submit">Enviar solicitação<svg><use href="#i-arrow"/></svg></button>
+          <a class="btn btn-line js-wa" href="https://wa.me/5516994275750" target="_blank" rel="noopener"><svg><use href="#i-wa"/></svg>Falar no WhatsApp</a>
+        </div>
       </form>
       <aside class="wa-card">
         <svg class="wa-big"><use href="#i-wa"/></svg>

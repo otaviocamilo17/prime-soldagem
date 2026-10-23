@@ -33,47 +33,56 @@
     if (!consent.checked) return ['f-lgpd', 'Marque que concorda com a Política de Privacidade.'];
     return null;
   }
-  function build() {
-    var lines = ['Olá, Prime Soldagem! Quero um orçamento.'];
-    lines.push('Nome: ' + val('f-nome'));
-    lines.push('Cidade: ' + val('f-cidade'));
-    lines.push('WhatsApp: ' + val('f-tel'));
-    lines.push('Serviço: ' + val('f-servico'));
-    lines.push('Detalhes: ' + val('f-desc'));
-    send.href = 'https://wa.me/' + NUM + '?text=' + encodeURIComponent(lines.join('\n'));
-    if (!err.hidden && !missing()) err.hidden = true;
+  var ok = document.getElementById('f-ok');
+  function prefill() {
+    // cliente logado: já preenche nome, WhatsApp e cidade
+    db.from('clientes').select('nome,telefone,cidade').eq('id', session.user.id).maybeSingle().then(function (c) {
+      if (!c.data) return;
+      [['f-nome', c.data.nome], ['f-tel', c.data.telefone], ['f-cidade', c.data.cidade]].forEach(function (p) {
+        var el = document.getElementById(p[0]); if (el && !el.value && p[1]) el.value = p[1];
+      });
+    });
   }
-  var lastSent = '';
-  function saveQuote() {
-    // grava o pedido no banco para aparecer no painel; o WhatsApp abre de qualquer jeito
-    if (!db || val('f-site')) return;
+  function clearMsgs() { if (!err.hidden && !missing()) err.hidden = true; ok.hidden = true; }
+  function fail(t) { err.textContent = t; err.hidden = false; }
+  var sending = false;
+  function sendQuote() {
+    // grava o pedido no banco; ele aparece no painel, aba Orçamentos
     var row = {
       cliente: val('f-nome').slice(0, 80), cidade: val('f-cidade').slice(0, 60), telefone: val('f-tel').slice(0, 20),
       servico: val('f-servico').slice(0, 60), descricao: val('f-desc').slice(0, 1200), origem: 'site', status: 'novo'
     };
     if (session) row.cliente_id = session.user.id;
-    var key = JSON.stringify(row);
-    if (key === lastSent) return;
-    lastSent = key;
-    db.from('orcamentos').insert(row).then(function (r) { if (r.error) lastSent = ''; });
+    sending = true; send.disabled = true;
+    db.from('orcamentos').insert(row).then(function (r) {
+      sending = false; send.disabled = false;
+      if (r.error) return fail('Não conseguimos enviar agora. Tente de novo em instantes ou fale com a gente pelo WhatsApp.');
+      done(row.cliente);
+    }, function () {
+      sending = false; send.disabled = false;
+      fail('Sem conexão no momento. Tente de novo ou fale com a gente pelo WhatsApp.');
+    });
+  }
+  function done(nome) {
+    form.reset();
+    if (session) prefill();
+    err.hidden = true;
+    ok.textContent = 'Recebemos sua solicitação, ' + (nome.split(' ')[0] || '') + '! Vamos responder pelo seu WhatsApp em breve.';
+    ok.hidden = false;
+    ok.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
   if (form) {
-    form.addEventListener('input', build);
-    form.addEventListener('change', build);
-    form.addEventListener('submit', function (e) { e.preventDefault(); });
-    send.addEventListener('click', function (e) {
+    form.addEventListener('input', clearMsgs);
+    form.addEventListener('change', clearMsgs);
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (sending) return;
       var m = missing();
-      if (m) {
-        e.preventDefault();
-        err.textContent = m[1];
-        err.hidden = false;
-        document.getElementById(m[0]).focus();
-        return;
-      }
-      build();
-      saveQuote();
+      if (m) { fail(m[1]); document.getElementById(m[0]).focus(); return; }
+      if (val('f-site')) return done(val('f-nome')); // robô preencheu o campo escondido: finge que enviou
+      if (!db) return fail('O envio pelo site está indisponível agora. Fale com a gente pelo WhatsApp.');
+      sendQuote();
     });
-    build();
   }
 
   // ---------- Conteúdo vindo do painel (Supabase) ----------
@@ -82,7 +91,7 @@
     db.from('config').select('*').eq('id', 1).maybeSingle().then(function (r) {
       var c = r.data; if (!c) return;
       var wa = P.waDigits(c.whatsapp);
-      if (wa) { NUM = wa; setWaLinks(); build && form && build(); }
+      if (wa) { NUM = wa; setWaLinks(); }
       setText('wa-num', c.whatsapp);
       setText('cidade-txt', c.cidade);
       setText('hero-sub', c.hero_sub);
@@ -114,13 +123,7 @@
       session = r.data && r.data.session;
       if (!session) return;
       var a = document.getElementById('acct'); if (a) a.textContent = 'Minha conta';
-      db.from('clientes').select('nome,telefone,cidade').eq('id', session.user.id).maybeSingle().then(function (c) {
-        if (!c.data) return;
-        [['f-nome', c.data.nome], ['f-tel', c.data.telefone], ['f-cidade', c.data.cidade]].forEach(function (p) {
-          var el = document.getElementById(p[0]); if (el && !el.value && p[1]) el.value = p[1];
-        });
-        if (form) build();
-      });
+      prefill();
     });
   }
 
