@@ -4,10 +4,16 @@
   // ---------- WhatsApp e formulário ----------
   var NUM = '5516994275750';
   var HELLO = 'Olá, Prime Soldagem! Vim pelo site e quero um orçamento.';
-  document.querySelectorAll('.js-wa').forEach(function (a) {
-    a.href = 'https://wa.me/' + NUM + '?text=' + encodeURIComponent(HELLO);
-  });
+  function setWaLinks() {
+    document.querySelectorAll('.js-wa').forEach(function (a) {
+      a.href = 'https://wa.me/' + NUM + '?text=' + encodeURIComponent(HELLO);
+    });
+  }
+  setWaLinks();
 
+  var P = window.Prime || {};
+  var db = P.db || null;
+  var session = null;
   var form = document.getElementById('quote-form');
   var send = document.getElementById('f-send');
   var consent = document.getElementById('f-lgpd');
@@ -15,11 +21,13 @@
 
   function val(id) {
     // limita o tamanho de cada campo; o texto só vira parte de um link, nunca é executado
-    return document.getElementById(id).value.replace(/\s+/g, ' ').trim().slice(0, 600);
+    var el = document.getElementById(id);
+    return el ? el.value.replace(/\s+/g, ' ').trim().slice(0, 600) : '';
   }
   function missing() {
     if (!val('f-nome')) return ['f-nome', 'Preencha o seu nome.'];
     if (!val('f-cidade')) return ['f-cidade', 'Preencha a cidade do serviço.'];
+    if (val('f-tel').replace(/\D/g, '').length < 10) return ['f-tel', 'Preencha o seu WhatsApp com DDD.'];
     if (!val('f-servico')) return ['f-servico', 'Escolha o tipo de serviço.'];
     if (!val('f-desc')) return ['f-desc', 'Descreva o que você precisa.'];
     if (!consent.checked) return ['f-lgpd', 'Marque que concorda com a Política de Privacidade.'];
@@ -29,10 +37,25 @@
     var lines = ['Olá, Prime Soldagem! Quero um orçamento.'];
     lines.push('Nome: ' + val('f-nome'));
     lines.push('Cidade: ' + val('f-cidade'));
+    lines.push('WhatsApp: ' + val('f-tel'));
     lines.push('Serviço: ' + val('f-servico'));
     lines.push('Detalhes: ' + val('f-desc'));
     send.href = 'https://wa.me/' + NUM + '?text=' + encodeURIComponent(lines.join('\n'));
     if (!err.hidden && !missing()) err.hidden = true;
+  }
+  var lastSent = '';
+  function saveQuote() {
+    // grava o pedido no banco para aparecer no painel; o WhatsApp abre de qualquer jeito
+    if (!db || val('f-site')) return;
+    var row = {
+      cliente: val('f-nome').slice(0, 80), cidade: val('f-cidade').slice(0, 60), telefone: val('f-tel').slice(0, 20),
+      servico: val('f-servico').slice(0, 60), descricao: val('f-desc').slice(0, 1200), origem: 'site', status: 'novo'
+    };
+    if (session) row.cliente_id = session.user.id;
+    var key = JSON.stringify(row);
+    if (key === lastSent) return;
+    lastSent = key;
+    db.from('orcamentos').insert(row).then(function (r) { if (r.error) lastSent = ''; });
   }
   if (form) {
     form.addEventListener('input', build);
@@ -45,9 +68,60 @@
         err.textContent = m[1];
         err.hidden = false;
         document.getElementById(m[0]).focus();
+        return;
       }
+      build();
+      saveQuote();
     });
     build();
+  }
+
+  // ---------- Conteúdo vindo do painel (Supabase) ----------
+  function setText(id, t) { var el = document.getElementById(id); if (el && t) el.textContent = t; }
+  if (db) {
+    db.from('config').select('*').eq('id', 1).maybeSingle().then(function (r) {
+      var c = r.data; if (!c) return;
+      var wa = P.waDigits(c.whatsapp);
+      if (wa) { NUM = wa; setWaLinks(); build && form && build(); }
+      setText('wa-num', c.whatsapp);
+      setText('cidade-txt', c.cidade);
+      setText('hero-sub', c.hero_sub);
+      setText('sobre-txt', c.sobre);
+      if (c.hero_titulo) {
+        // as duas primeiras palavras em branco, o resto em azul, como no layout
+        var h = document.getElementById('hero-title'), w = c.hero_titulo.trim().split(/\s+/);
+        h.textContent = w.slice(0, 2).join(' ') + ' ';
+        var span = document.createElement('span'); span.className = 'blue'; span.textContent = w.slice(2).join(' ');
+        h.appendChild(span);
+      }
+      if (c.instagram) {
+        var ig = 'https://www.instagram.com/' + c.instagram.replace(/^@/, '').replace(/[^\w.]/g, '') + '/';
+        document.querySelectorAll('a[href^="https://www.instagram.com/"]').forEach(function (a) { a.href = ig; });
+      }
+    });
+    db.from('fotos').select('caminho,titulo,ordem,criado_em').eq('no_site', true).order('ordem').order('criado_em', { ascending: false }).limit(12).then(function (r) {
+      var g = document.getElementById('gallery');
+      if (!g || !r.data || !r.data.length) return;
+      g.textContent = '';
+      r.data.forEach(function (f) {
+        var fig = document.createElement('figure');
+        var img = document.createElement('img'); img.src = P.fotoUrl(f.caminho); img.alt = f.titulo || 'Trabalho da Prime Soldagem'; img.loading = 'lazy';
+        var cap = document.createElement('figcaption'); cap.textContent = f.titulo || '';
+        fig.appendChild(img); if (f.titulo) fig.appendChild(cap); g.appendChild(fig);
+      });
+    });
+    db.auth.getSession().then(function (r) {
+      session = r.data && r.data.session;
+      if (!session) return;
+      var a = document.getElementById('acct'); if (a) a.textContent = 'Minha conta';
+      db.from('clientes').select('nome,telefone,cidade').eq('id', session.user.id).maybeSingle().then(function (c) {
+        if (!c.data) return;
+        [['f-nome', c.data.nome], ['f-tel', c.data.telefone], ['f-cidade', c.data.cidade]].forEach(function (p) {
+          var el = document.getElementById(p[0]); if (el && !el.value && p[1]) el.value = p[1];
+        });
+        if (form) build();
+      });
+    });
   }
 
   // ---------- Menu: marca a seção visível ----------

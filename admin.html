@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co; connect-src 'self' https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<title>Painel · Prime Soldagem</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira:wdth,wght@100..125,400..800&display=swap">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+<svg class="sprite" width="0" height="0" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/></g></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h6"/></g></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/></g></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></g></symbol>
+  <symbol id="i-img" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/></g></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></g></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-wa" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.3c0-.1-.2-.2-.5-.3Z"/></symbol>
+</svg>
+
+<!-- LOGIN -->
+<div class="login" id="login" hidden>
+  <form id="f-login" novalidate>
+    <img src="img/logo-mark.jpg" alt="Prime Soldagem" width="440" height="330">
+    <h1>Painel administrativo</h1>
+    <label class="f" for="l-email">E-mail<input id="l-email" type="email" autocomplete="username" maxlength="120"></label>
+    <label class="f" for="l-pass">Senha<input id="l-pass" type="password" autocomplete="current-password" maxlength="72"></label>
+    <button class="btn primary" type="submit">Entrar</button>
+    <p class="msg" id="l-msg" role="alert"></p>
+  </form>
+</div>
+<div class="login" id="noconfig" hidden>
+  <form><h1>Painel sem conexão</h1><p class="muted">Preencha o arquivo js/config.js com a URL e a chave anon do Supabase.</p></form>
+</div>
+
+<div class="app" id="app" hidden>
+  <aside class="side">
+    <div class="logo"><img src="img/logo-mark.jpg" alt="Prime Soldagem" width="440" height="330"><span>Painel</span></div>
+    <nav class="tabs" aria-label="Seções do painel">
+      <button class="tab" data-view="visao"><svg><use href="#i-home"/></svg>Visão geral</button>
+      <button class="tab" data-view="orcamentos"><svg><use href="#i-doc"/></svg>Orçamentos<span class="count" id="c-novos" hidden></span></button>
+      <button class="tab" data-view="pedidos"><svg><use href="#i-box"/></svg>Pedidos<span class="count" id="c-prod" hidden></span></button>
+      <button class="tab" data-view="clientes"><svg><use href="#i-user"/></svg>Clientes</button>
+      <button class="tab" data-view="galeria"><svg><use href="#i-img"/></svg>Galeria</button>
+      <button class="tab" data-view="site"><svg><use href="#i-gear"/></svg>Informações</button>
+    </nav>
+    <div class="foot">
+      <span id="who"></span>
+      <a href="index.html" target="_blank" rel="noopener">Abrir o site</a>
+      <button class="btn ghost sm" id="logout">Sair</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <!-- VISÃO GERAL -->
+    <section class="view" data-view="visao">
+      <div class="top"><div><h1>Visão geral</h1><p class="sub" id="today"></p></div>
+        <button class="btn primary" data-new="orc"><svg><use href="#i-plus"/></svg>Novo orçamento</button></div>
+      <div class="kpis">
+        <div class="card kpi"><span class="label">Orçamentos no mês</span><span class="value num" id="k-orc">0</span><span class="note" id="k-orc-n"></span></div>
+        <div class="card kpi"><span class="label">Taxa de aprovação</span><span class="value num" id="k-taxa">–</span><span class="note" id="k-taxa-n"></span></div>
+        <div class="card kpi"><span class="label">Em produção</span><span class="value num" id="k-prod">R$ 0</span><span class="note" id="k-prod-n"></span></div>
+        <div class="card kpi"><span class="label">Faturado no mês</span><span class="value num" id="k-fat">R$ 0</span><span class="note" id="k-fat-n"></span></div>
+      </div>
+      <div class="grid-2">
+        <div class="card chart"><div class="card-head"><h2>Orçamentos por mês</h2><span class="hint">últimos 6 meses</span></div><div id="ch-orc"></div>
+          <div class="legend"><span><i class="lg-recebidos"></i>Recebidos</span><span><i class="lg-aprovados"></i>Aprovados</span></div></div>
+        <div class="card"><div class="card-head"><h2>Serviços mais pedidos</h2><span class="hint">todos os orçamentos</span></div><div class="hbars" id="ch-svc"></div></div>
+      </div>
+      <div class="grid-2b">
+        <div class="card chart"><div class="card-head"><h2>Faturamento por mês</h2><span class="hint">pedidos entregues, R$</span></div><div id="ch-fat"></div></div>
+        <div class="card"><div class="card-head"><h2>Próximas entregas</h2><span class="hint">pedidos não entregues</span></div><div id="next"></div></div>
+      </div>
+    </section>
+
+    <!-- ORÇAMENTOS -->
+    <section class="view" data-view="orcamentos" hidden>
+      <div class="top"><div><h1>Orçamentos</h1><p class="sub">Os pedidos feitos pelo site entram aqui sozinhos, marcados como "site".</p></div>
+        <button class="btn primary" data-new="orc"><svg><use href="#i-plus"/></svg>Novo orçamento</button></div>
+      <div class="toolbar">
+        <input type="search" id="q-orc" placeholder="Buscar cliente, cidade ou serviço" aria-label="Buscar orçamentos">
+        <div class="chips" id="f-orc">
+          <button class="chip" aria-pressed="true" data-f="">Todos</button>
+          <button class="chip" aria-pressed="false" data-f="novo">Novos</button>
+          <button class="chip" aria-pressed="false" data-f="enviado">Enviados</button>
+          <button class="chip" aria-pressed="false" data-f="aprovado">Aprovados</button>
+          <button class="chip" aria-pressed="false" data-f="recusado">Recusados</button>
+        </div>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Cliente</th><th>Serviço</th><th>Cidade</th><th>Data</th><th>Status</th><th class="r">Valor</th></tr></thead>
+        <tbody id="t-orc"></tbody>
+      </table></div>
+    </section>
+
+    <!-- PEDIDOS -->
+    <section class="view" data-view="pedidos" hidden>
+      <div class="top"><div><h1>Pedidos</h1><p class="sub">Serviços fechados, da produção até a entrega. O cliente cadastrado acompanha a etapa na conta dele.</p></div>
+        <button class="btn primary" data-new="ped"><svg><use href="#i-plus"/></svg>Novo pedido</button></div>
+      <div class="board">
+        <div class="col"><div class="col-head"><h2>Em produção</h2><span class="sum num" id="sum-producao"></span></div><div id="col-producao" class="view"></div></div>
+        <div class="col"><div class="col-head"><h2>Pronto para entrega</h2><span class="sum num" id="sum-pronto"></span></div><div id="col-pronto" class="view"></div></div>
+        <div class="col"><div class="col-head"><h2>Entregue</h2><span class="sum num" id="sum-entregue"></span></div><div id="col-entregue" class="view"></div></div>
+      </div>
+    </section>
+
+    <!-- CLIENTES -->
+    <section class="view" data-view="clientes" hidden>
+      <div class="top"><div><h1>Clientes</h1><p class="sub">Pessoas que criaram conta no site.</p></div></div>
+      <div class="toolbar"><input type="search" id="q-cli" placeholder="Buscar nome, cidade, e-mail ou telefone" aria-label="Buscar clientes"></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Cliente</th><th>Cidade</th><th>E-mail</th><th>Cadastro</th><th class="r">Orçamentos</th><th class="r">Pedidos</th></tr></thead>
+        <tbody id="t-cli"></tbody>
+      </table></div>
+    </section>
+
+    <!-- GALERIA -->
+    <section class="view" data-view="galeria" hidden>
+      <div class="top"><div><h1>Galeria de trabalhos</h1><p class="sub">Fotos com "Mostrar no site" aparecem na galeria do site, na ordem desta tela.</p></div></div>
+      <div class="drop" id="drop">
+        <span>Arraste fotos aqui ou</span>
+        <label class="btn primary"><svg><use href="#i-plus"/></svg>Escolher fotos<input type="file" id="pick" accept="image/png,image/jpeg,image/webp" multiple hidden></label>
+        <span class="muted" id="up-status">JPG, PNG ou WEBP até 10 MB.</span>
+      </div>
+      <div class="photos" id="photos"></div>
+    </section>
+
+    <!-- INFORMAÇÕES DO SITE -->
+    <section class="view" data-view="site" hidden>
+      <div class="top"><div><h1>Informações do site</h1><p class="sub">O que você salvar aqui aparece no site na hora.</p></div></div>
+      <form class="card form" id="cfg" novalidate>
+        <div class="fgrid">
+          <label class="f" for="c-wa">WhatsApp<input id="c-wa" inputmode="tel" maxlength="20"></label>
+          <label class="f" for="c-cidade">Cidade<input id="c-cidade" maxlength="60"></label>
+          <label class="f" for="c-ig">Instagram<input id="c-ig" maxlength="40"></label>
+          <label class="f" for="c-hor">Horário de atendimento<input id="c-hor" maxlength="80"></label>
+          <label class="f span2" for="c-tit">Título principal<input id="c-tit" maxlength="90"></label>
+          <label class="f span2" for="c-sub">Texto de apoio<textarea id="c-sub" maxlength="300"></textarea></label>
+          <label class="f span2" for="c-sobre">Sobre a empresa<textarea id="c-sobre" maxlength="900"></textarea></label>
+        </div>
+        <div class="toolbar"><button class="btn primary" type="submit">Salvar informações</button><span class="muted" id="cfg-status"></span></div>
+      </form>
+    </section>
+  </main>
+</div>
+
+<dialog id="dlg-orc">
+  <form class="dlg" id="form-orc" novalidate>
+    <div class="dlg-head"><h2 id="orc-title">Novo orçamento</h2><button class="x" type="button" data-close aria-label="Fechar">×</button></div>
+    <div class="fgrid">
+      <label class="f" for="o-cliente">Cliente*<input id="o-cliente" maxlength="80"></label>
+      <label class="f" for="o-tel">WhatsApp<input id="o-tel" inputmode="tel" maxlength="20" placeholder="(16) 9…"></label>
+      <label class="f" for="o-cidade">Cidade<input id="o-cidade" maxlength="60"></label>
+      <label class="f" for="o-conta">Conta do cliente<select id="o-conta"></select></label>
+      <label class="f" for="o-servico">Serviço*<select id="o-servico"></select></label>
+      <label class="f" for="o-material">Material<select id="o-material"><option>Aço carbono</option><option>Aço inox</option><option>Alumínio</option><option>Outro</option><option value="">Não informado</option></select></label>
+      <label class="f" for="o-valor">Valor (R$)<input id="o-valor" inputmode="decimal" placeholder="0,00"></label>
+      <label class="f" for="o-status">Status<select id="o-status"><option value="novo">Novo</option><option value="enviado">Orçamento enviado</option><option value="aprovado">Aprovado</option><option value="recusado">Recusado</option></select></label>
+      <label class="f" for="o-data">Data<input id="o-data" type="date"></label>
+      <label class="f span2" for="o-desc">Descrição<textarea id="o-desc" maxlength="1200"></textarea></label>
+    </div>
+    <p class="muted" id="orc-err" role="alert"></p>
+    <div class="dlg-foot">
+      <div class="left">
+        <button class="btn danger" type="button" id="orc-del" hidden>Excluir</button>
+        <a class="btn ghost" id="orc-wa" target="_blank" rel="noopener" hidden><svg><use href="#i-wa"/></svg>WhatsApp</a>
+      </div>
+      <div class="right">
+        <button class="btn" type="button" id="orc-ped" hidden>Gerar pedido</button>
+        <button class="btn primary" type="submit">Salvar</button>
+      </div>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlg-ped">
+  <form class="dlg" id="form-ped" novalidate>
+    <div class="dlg-head"><h2 id="ped-title">Novo pedido</h2><button class="x" type="button" data-close aria-label="Fechar">×</button></div>
+    <div class="fgrid">
+      <label class="f" for="p-cliente">Cliente*<input id="p-cliente" maxlength="80"></label>
+      <label class="f" for="p-tel">WhatsApp<input id="p-tel" inputmode="tel" maxlength="20"></label>
+      <label class="f" for="p-conta">Conta do cliente<select id="p-conta"></select></label>
+      <label class="f" for="p-servico">Serviço*<select id="p-servico"></select></label>
+      <label class="f" for="p-valor">Valor (R$)<input id="p-valor" inputmode="decimal" placeholder="0,00"></label>
+      <label class="f" for="p-prazo">Prazo de entrega<input id="p-prazo" type="date"></label>
+      <label class="f" for="p-status">Etapa<select id="p-status"><option value="producao">Em produção</option><option value="pronto">Pronto para entrega</option><option value="entregue">Entregue</option></select></label>
+      <label class="f span2" for="p-desc">Observações<textarea id="p-desc" maxlength="1200"></textarea></label>
+    </div>
+    <p class="muted" id="ped-err" role="alert"></p>
+    <div class="dlg-foot">
+      <button class="btn danger" type="button" id="ped-del" hidden>Excluir</button>
+      <div class="right"><button class="btn primary" type="submit">Salvar</button></div>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlg-cli">
+  <div class="dlg">
+    <div class="dlg-head"><h2 id="cli-title">Cliente</h2><button class="x" type="button" data-close aria-label="Fechar">×</button></div>
+    <dl class="kv" id="cli-kv"></dl>
+    <h2>Histórico</h2>
+    <div class="hist" id="cli-hist"></div>
+    <div class="dlg-foot">
+      <a class="btn ghost" id="cli-wa" target="_blank" rel="noopener" hidden><svg><use href="#i-wa"/></svg>WhatsApp</a>
+      <div class="right"><button class="btn primary" type="button" id="cli-orc">Novo orçamento para este cliente</button></div>
+    </div>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" defer></script>
+<script src="js/config.js" defer></script>
+<script src="js/supa.js" defer></script>
+<script src="js/admin.js" defer></script>
+</body>
+</html>
